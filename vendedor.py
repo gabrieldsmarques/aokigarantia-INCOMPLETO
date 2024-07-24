@@ -1,3 +1,16 @@
+##inserir na requisição é igual a x=60, y=331
+##tipo de movimento na requisição é igual a x=95, y=361
+##mercadorias na requisição é igual a x=124, y=225
+## "+" da mercadorias na requisição é igual a x=87, y=325
+##informações complementares na requisição é igual a x=223, y=226
+
+
+##vendedor = x=70, y=716
+##a cada 15 clicks tem q pegar uma nova coordenada?
+##vendedor = x=69, y=1016
+
+
+
 import pyautogui, sys, keyboard
 import time
 
