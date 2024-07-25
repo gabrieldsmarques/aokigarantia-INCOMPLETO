@@ -9,7 +9,7 @@
 ##a cada 15 clicks tem q pegar uma nova coordenada?
 ##vendedor = x=69, y=1016
 
-
+##   pyautogui.click(87, 325)
 
 import pyautogui, sys, keyboard
 import time
