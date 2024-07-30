@@ -14,30 +14,57 @@
 import pyautogui, sys, keyboard
 import time
 
+
+##parte pra definir as coisas essenciais do códiog, como ir até o final da página, alinhar tudo e a criação de variáveis.
+
+
+pyautogui.PAUSE = 0.1
+time.sleep(1)
+
+
+pyautogui.scroll(-99999)
+pyautogui.scroll(300)
+
+
+clicks=0 
+loops=0 ##define quantas vezes o loop de alinhamento foi feito, serve pra alinhar o alinhamento q zoa dps
+pecas=195 ##quantas peças tem na requisição, importante colocar pra não quebrar o final
+x= 65 #eixo x da tela (horizontal)
+y= 1020 ##eixo y da tela (vertical)
+
+
 ##função que vai fazer tudo
 def clicador():
     pyautogui.scroll(65)
-    pyautogui.click(x=69, y=1016)
+    pyautogui.click(x, y)
     
-
-##parte pra definir as coisas essenciais do códiog, como ir até o final da página, alinhar tudo e a criação de variáveis.
-pyautogui.PAUSE =0.2
-pyautogui.sleep =3
-pyautogui.scroll(-9999999)
-pyautogui.scroll(285)
-clicks=0
-
-    
-        
+    # pyautogui.doubleClick(272, 328)
+    # pyautogui.write("VINI")
+    # time.sleep(0.4)
+    # pyautogui.press('enter')
+    # time.sleep(0.5) 
+    # pyautogui.click(940, 877)   
+ 
 ##loop pra utilizar a função infinitamente
-while clicks < 21:
+while clicks < 6:
+    if (clicks==5):##um if porque a cada 5 loops o y desalinha, esse if serve pra alinhar bonitinho e voltar pro loop
+        pyautogui.scroll(-5)
+        clicks -= 5
+        loops+=1
+        
     clicador()
     clicks+=1
-    if (clicks==21):##um if porque a cada 21 loops o y desalinha, esse if serve pra alinhar bonitinho e voltar pro loop
-        pyautogui.scroll(35)
-        clicks -= 21
-        clicador()
+    pecas -=1
+    if loops ==5:
+        pyautogui.scroll(-7)
+        loops-=5
+    if (pecas ==13):
+        while pecas !=0:
+            y - 50
+            pecas-1 ##MEXER NESSA PARTE AINDA
 
+        ##quando chega nas últimas peças n scrolla mais pra cima, pegar coordenadas ou algo do tipo
+        ##sempre 12 peças no final
    
 
     
