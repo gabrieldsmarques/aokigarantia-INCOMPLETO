@@ -1,26 +1,41 @@
 import pyautogui
 import time
 
-x = 65
-y = 1020
-clicks = 0
-loops = 0
-time.sleep(1)
-pyautogui.scroll(-99999)
-pyautogui.scroll(300)
-pyautogui.PAUSE = 0.2
-while True:
-    if clicks==5:
-        pyautogui.scroll(-5)
-        clicks-=5
-        loops+=1
 
-    pyautogui.scroll(65)
-    pyautogui.moveTo(x,y)
-    clicks+=1
-    if loops ==5:
-        pyautogui.scroll(10)
-        loops-=5
+##PARTE DE TESTE DO PRINT
+# time.sleep(1)
+# x, y, altura, largura = 360, 300, 500 , 1200 ##variavel com o tamanho desejado do print de inserir
+# imagem = pyautogui.screenshot(region=(x, y, largura, altura))
+# imagem.save("imagem.png")
+
+
+
+
+
+
+
+
+## ESBOÇO DO VENDEDOR
+# x = 65
+# y = 1020
+# clicks = 0
+# loops = 0
+# time.sleep(1)
+# pyautogui.scroll(-99999)
+# pyautogui.scroll(300)
+# pyautogui.PAUSE = 0.2
+# while True:
+#     if clicks==5:
+#         pyautogui.scroll(-5)
+#         clicks-=5
+#         loops+=1
+
+#     pyautogui.scroll(65)
+#     pyautogui.moveTo(x,y)
+#     clicks+=1
+#     if loops ==5:
+#         pyautogui.scroll(10)
+#         loops-=5
 
 #     y-=25
 # print(pyautogui.position())
