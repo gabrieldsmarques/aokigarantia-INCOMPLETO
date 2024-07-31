@@ -1,6 +1,8 @@
 import pyautogui
 import time
+import pytesseract
 
+print(pytesseract)
 
 ##PARTE DE TESTE DO PRINT
 # time.sleep(1)
