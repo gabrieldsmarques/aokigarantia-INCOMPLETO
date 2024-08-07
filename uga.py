@@ -2,7 +2,7 @@ import pyautogui
 import time
 import pytesseract
 
-print(pytesseract)
+
 
 ##PARTE DE TESTE DO PRINT
 # time.sleep(1)
@@ -13,17 +13,32 @@ print(pytesseract)
 
 
 
+# 53,13
+# 13*8=1.04
+# 53+8=61
 
-
-
+alinhamento=0
 
 ## ESBOÇO DO VENDEDOR
 # x = 65
 # y = 1020
 # clicks = 0
 # loops = 0
-# time.sleep(1)
-# pyautogui.scroll(-99999)
+time.sleep(1)
+pyautogui.PAUSE=0.3
+pyautogui.scroll(-99999999)
+pyautogui.scroll(350)
+
+while True:
+    pyautogui.click(65, 1020)
+    pyautogui.scroll(45)
+    alinhamento+=1
+    
+    if alinhamento==9:
+        pyautogui.scroll(-4)
+        alinhamento-=9
+
+  
 # pyautogui.scroll(300)
 # pyautogui.PAUSE = 0.2
 # while True:

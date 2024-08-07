@@ -1,72 +1,89 @@
-##inserir na requisição é igual a x=60, y=331
-##tipo de movimento na requisição é igual a x=95, y=361
-##mercadorias na requisição é igual a x=124, y=225
-## "+" da mercadorias na requisição é igual a x=87, y=325
-##informações complementares na requisição é igual a x=223, y=226
-
-
-##vendedor = x=70, y=716
-##a cada 15 clicks tem q pegar uma nova coordenada?
-##vendedor = x=69, y=1016
-
-##   pyautogui.click(87, 325)
-
-import pyautogui, sys, keyboard
+import pyautogui
 import time
 
+# variáveis pro programa rodar
+PAUSE_DURATION = 0.7 # define uma pausa entre comandos, aumentar caso o sistema/internet esteja lento
+INITIAL_SCROLL_DOWN = -9999999 ##variável pra ir pro final da página
+INITIAL_SCROLL_UP = 350 ##variável pra alinhar depois de ir pro final(NÃO MUDAR)
+SCROLL_UP_AMOUNT = 45 ##define quanto a tela sobe depois de cada click (NÃO MUDAR)
+MAX_CLICKS_BEFORE_REALIGN = 9 ##limite de clicks pra alinhar a tela (NÃO MUDAR)
+PIECE_COUNT = 195 ##define quantas peças tem na requisição 
+REALIGN_SCROLL_UP = 4  # define o quanto a tela vai descer pra alinhar (NÃO MUDAR)
 
-##parte pra definir as coisas essenciais do códiog, como ir até o final da página, alinhar tudo e a criação de variáveis.
+# Coordinates
+CLICK_X, CLICK_Y = 62, 1020 # define onde vai clicar pra alterar (NÃO MUDAR)
+VENDOR_X, VENDOR_Y = 272, 328 # define onde vai clicar pra botar o vendedor (NÃO MUDAR)
+CONFIRMATION_X, CONFIRMATION_Y = 940, 877 # define onde vai clicar pra salvar (NÃO MUDAR)
+VENDOR_NAME = "VINI" #define quem vai ser o vendedor, mudar se não quiser que seja o vinicius
 
+# tempo de espera pra ir pra página
+pyautogui.PAUSE = PAUSE_DURATION
+time.sleep(3)
 
-pyautogui.PAUSE = 0.1
-time.sleep(1)
+def initial_setup():
+    """descer até o final e alinhar tudo."""
+    pyautogui.scroll(INITIAL_SCROLL_DOWN)
+    pyautogui.scroll(INITIAL_SCROLL_UP)
 
+def click_coordinates(x, y):
+    """Clicar nas coordenadas específicas e lidar com erros."""
+    try:
+        pyautogui.click(x, y)
+    except pyautogui.FailSafeException:
+        print("PyAutoGUI desligando.")
+        exit()
+    except pyautogui.PyAutoGUIException as e:
+        print(f"PyAutoGUI deu erro quando foi clicar em: ({x}, {y}): {e}")
+    except Exception as e:
+        print(f"deu erro quando foi clicar em: ({x}, {y}): {e}")
 
-pyautogui.scroll(-99999)
-pyautogui.scroll(300)
+def perform_vendor_action():
+    """clicar no vendedor, escrever o nome e confirmar"""
+    try:
+        pyautogui.doubleClick(VENDOR_X, VENDOR_Y)
+        pyautogui.write(VENDOR_NAME)
+        time.sleep(0.4)
+        pyautogui.press('enter')
+        time.sleep(0.5)
+        click_coordinates(CONFIRMATION_X, CONFIRMATION_Y)
+    except pyautogui.PyAutoGUIException as e:
+        print(f"PyAutoGUI deu erro no vendedor: {e}")
+    except Exception as e:
+        print(f"Erro no vendedor: {e}")
 
+def scroll_up():
+    """subir a tela depois de cada clcik"""
+    pyautogui.scroll(SCROLL_UP_AMOUNT)
 
-clicks=0 
-loops=0 ##define quantas vezes o loop de alinhamento foi feito, serve pra alinhar o alinhamento q zoa dps
-pecas=195 ##quantas peças tem na requisição, importante colocar pra não quebrar o final
-x= 65 #eixo x da tela (horizontal)
-y= 1020 ##eixo y da tela (vertical)
+def realign_view():
+    """realinhar a página depois de uma certa quantidade de clicks"""
+    pyautogui.scroll(-REALIGN_SCROLL_UP)
 
+def main():
+    initial_setup()
+    pieces_remaining = PIECE_COUNT
+    clicks = 0
+    click_y = CLICK_Y  
 
-##função que vai fazer tudo
-def clicador():
-    pyautogui.scroll(65)
-    pyautogui.click(x, y)
-    
-    # pyautogui.doubleClick(272, 328)
-    # pyautogui.write("VINI")
-    # time.sleep(0.4)
-    # pyautogui.press('enter')
-    # time.sleep(0.5) 
-    # pyautogui.click(940, 877)   
- 
-##loop pra utilizar a função infinitamente
-while clicks < 6:
-    if (clicks==5):##um if porque a cada 5 loops o y desalinha, esse if serve pra alinhar bonitinho e voltar pro loop
-        pyautogui.scroll(-5)
-        clicks -= 5
-        loops+=1
-        
-    clicador()
-    clicks+=1
-    pecas -=1
-    if loops ==5:
-        pyautogui.scroll(-7)
-        loops-=5
-    if (pecas ==13):
-        while pecas !=0:
-            y - 50
-            pecas-1 ##MEXER NESSA PARTE AINDA
+    while pieces_remaining > 0:
+        click_coordinates(CLICK_X, click_y)
+        perform_vendor_action()
+        pieces_remaining -= 1
+        clicks += 1
 
-        ##quando chega nas últimas peças n scrolla mais pra cima, pegar coordenadas ou algo do tipo
-        ##sempre 12 peças no final
-   
+        # subir depois de cada click
+        scroll_up()
 
-    
+        # realinhar a tela depois do limite de clicks
+        if clicks >= MAX_CLICKS_BEFORE_REALIGN:
+            realign_view()
+            clicks = 0  # reiniciando o contador de clicks pra realinhar de novo depois
 
+        # parte do final, que a páigna não sobe mais
+        if pieces_remaining <= 19:
+            click_y -= 45
 
+    print("Feito.")
+
+if __name__ == "__main__":
+    main()

@@ -1,37 +1,38 @@
-
-import numpy
+import numpy as np
 import pyautogui
-import time ##adiciona comandos de tempo, como pausas e tals
-import pandas
-import plotly
-import pytesseract ##pytesseract serve pra reconhecer texto em imagens
-import cv2 ##o opencv serve pra ler e processar imagens
-import thefuzz as fuzz ##serve pra comparar textos
+import time
+import pandas as pd
+import pytesseract
+import cv2
 from PIL import Image
 from io import BytesIO
 
-pytesseract.pytesseract.tesseract_cmd = r'c:\Program Files\Tesseract-OCR\tesseract.exe'  ##definindo o caminho até o pytesseract
+# Configuring the Tesseract executable path
+pytesseract.pytesseract.tesseract_cmd = r'c:\Program Files\Tesseract-OCR\tesseract.exe'
 
+# PyAutoGUI configuration
+pyautogui.PAUSE = 0.7  # Pause between commands
+time.sleep(3)  # Wait 1 second for the screen to load
+x, y, largura, altura = 360, 300, 1200, 500  # Screen capture area
+sgs = 'sgs.txt'
 
-pyautogui.PAUSE = 0.2 ## deixa um intervalo de tempo entre todos os códigos de pyautogui, pro código n fazer tudo rápido demais e o pc não acompanhar
-pyautogui.sleep = 5
-x, y, altura, largura = 360, 300, 500 , 1200 ##variavel com o tamanho desejado do print de inserir NÃO MUDAR
-sgs=('sgs.txt')
+# Loading the table of codes
+tabela = pd.read_csv('sucateamento.csv')
 
-tabela = pandas.read_csv('sucateamento.csv')
-
+# Functions for reading and saving processed codes
 def leitura(sgs):
     try:
         with open(sgs, 'r') as f:
             return set(f.read().splitlines())
     except FileNotFoundError:
         return set()
-    
+
 def salvarleitura(sgs, codigo):
     with open(sgs, 'a') as f:
         f.write(f"{codigo}\n")
-        
-codigos_processados= leitura(sgs)
+
+# Load previously processed codes
+codigos_processados = leitura(sgs)
 
 def verificar(codigo):
     if codigo not in codigos_processados:
@@ -40,80 +41,69 @@ def verificar(codigo):
         return True
     return False
 
-def clicar(imagem_codigo):
+def clicar(imagem_codigo, imagem_tela):
+    # Converting images to grayscale
     imagem_codigo_gray = cv2.cvtColor(imagem_codigo, cv2.COLOR_BGR2GRAY)
-    imagem_tela_gray = cv2.cvtColor(foto, cv2.COLOR_BGR2GRAY)
+    imagem_tela_gray = cv2.cvtColor(imagem_tela, cv2.COLOR_BGR2GRAY)
+
+    # Template matching
     resultado = cv2.matchTemplate(imagem_tela_gray, imagem_codigo_gray, cv2.TM_CCOEFF_NORMED)
-    
+
     _, _, _, max_loc = cv2.minMaxLoc(resultado)
     return max_loc
 
-
-
-    
-
-for linha in tabela.index: 
+for linha in tabela.index:
     count = len(str(tabela.loc[linha, "sg"]))
-    sg = str(tabela.loc[linha,"sg"]) ##criando a sg numa variável pra acelerar o processo de cortar os 2 numeros extra de sg
-    num = str(tabela.loc[linha, "peca"]) ##transformando o numero da peça numa variável pra poder comparar depois
-    if count==6:
-        sg = sg[:4] ##transformando a linha numa variável pra facilitar a vida
-    if verificar(sgs):
+    sg = str(tabela.loc[linha, "sg"])
+    num = str(tabela.loc[linha, "peca"])
+    if count == 6:
+        sg = sg[:4]  # Adjusting the SG code to 4 digits
+
+    if verificar(sg):
         pyautogui.write(sg)
         pyautogui.press('enter')
-    
-        foto = pyautogui.screenshot(region=(x, y, altura, largura)) ##tira print da tela pra guardar na memória
         
-        ##convertendo pra objeto bytesio pra manipular ela na memória e ser mais rápido  
+
+        # Capture the screen area
+        foto = pyautogui.screenshot(region=(x, y, largura, altura))
+
+        # Convert the screenshot to a NumPy array
         foto_bytes = BytesIO()
         foto.save(foto_bytes, format='PNG')
-        
-        ##carregando a imagem  
         foto_bytes.seek(0)
-        imagem = Image.open(foto_bytes) 
-        
-        
-        
-        
-        ##CÁLCULO DO QUADRADO NO CÓDIGO
-        
-        ##PROCESSANDO IMAGEM
-        imagem_tela = Image.open(imagem)
-        imagem_tela = numpy.array(imagem_tela)
+        imagem = Image.open(foto_bytes)
+
+        # Convert the image to a format suitable for OpenCV
+        imagem_tela = np.array(imagem)
         imagem_tela = cv2.cvtColor(imagem_tela, cv2.COLOR_RGB2BGR)
-        
-        ##lENDO PRINT DO QUADRADO
+
+        # Load and process the template image
         imagem_codigo = cv2.imread('quad.png')
-        
-        ##PEGANDO POSIÇÃO DO QUADRADO
+        if imagem_codigo is None:
+            print("Error: Image file 'quad.png' not found.")
+            continue
+
+        # Get the position of the template in the screen capture
         posicao_codigo = clicar(imagem_codigo, imagem_tela)
-        
-        #TAMANHO
+
+        # Define the size of the clickable area
         tamanho_quadrado = (16, 16)
-        
-        ##CALCULO DE POSIÇÃO
+
+        # Calculate the click position
         largura_codigo, altura_codigo = imagem_codigo.shape[1], imagem_codigo.shape[0]
         x_centralizado = posicao_codigo[0] + largura_codigo // 2
         y_centralizado = posicao_codigo[1] + altura_codigo // 2
-        
+
         x_click = x_centralizado + tamanho_quadrado[0] // 2
         y_click = y_centralizado + tamanho_quadrado[1] // 2
-        
-        
-        
-            
-        ##processando imagem
-        imagem = imagem.convert('L')
-    
-        codigo = pytesseract.image_to_string(imagem) ##convertendo pra texto 
 
-        if codigo.strip() in 'sucateamento.csv':
+        # Process the image for OCR
+        imagem = Image.fromarray(imagem_tela).convert('L')
+        codigo = pytesseract.image_to_string(imagem).strip()
+
+        # Check if the code is in the scrap list
+        if codigo in tabela['sg'].values:
             pyautogui.click(x=x_click, y=y_click)
-
-    
-    
-    
-
-    
-    
-    
+            print(f"Código {codigo} encontrado e clicado.")
+        else:
+            print(f"Código {codigo} não encontrado na lista de sucateamento.")
